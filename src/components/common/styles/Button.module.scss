@@ -1,0 +1,67 @@
+.buttonCommon {
+    // Propiedades base
+    z-index: 1;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-sizing: border-box;
+    background-color: transparent;
+    min-inline-size: 0;
+    text-decoration: none;
+    text-transform: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-family);
+
+    // Propiedades dinámicas
+    font-size: var(--encore-text-size-smaller);
+    min-block-size: var(--encore-control-size-smaller, 32px);
+    padding-block: var(--encore-spacing-tighter, 12px);
+    padding-inline: var(--encore-spacing-tighter, 12px);
+    color: var(--text-subdued, #656565);
+
+    // Transiciones
+    transition: all 33ms ease;
+    transition-property: background-color, border-color, color, box-shadow, filter, transform;
+
+    // Estados
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+}
+
+.buttonContent {
+    display: flex;
+    align-items: center;
+
+    .buttonIcon {
+        display: flex;
+        align-items: center;
+    }
+
+    .buttonLabel {
+        white-space: nowrap;
+        font-size: inherit;
+    }
+}
+
+// Modifiers
+.buttonDisabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+
+.buttonHover:hover:not(:disabled) {
+    scale: 1.05;
+    color: #fff;
+}

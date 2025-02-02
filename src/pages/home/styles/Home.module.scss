@@ -1,0 +1,9 @@
+.container {
+    --content-spacing: clamp(16px, 16px + (var(--main-view-grid-width) - 600px)/424 * 8, 24px);
+    --main-view-grid-width: 100cqw;
+    width: 100%;
+
+    &__inner {
+        display: block;
+    }
+}
