@@ -10,6 +10,7 @@ import styles from "./styles/Layout.module.scss"
 import { useMembers } from "./hooks/useMembers";
 import image from "@/assets/Loading.gif";
 import { useLocation } from "react-router-dom";
+import LeftSidebar from "./components/ui/LeftSidebar";
 
 const Layout: React.FC = () => {
   const { projects } = useProjects();
@@ -25,6 +26,7 @@ const Layout: React.FC = () => {
       <div className={styles.appContainer__app}>
         <div className={styles.appContainer__app__content}>
           <Header />
+          <LeftSidebar />
           <div
             className={`${styles.pageContainer} ${
               selectedMember && !(isSettingsPage && isMobile) ? styles.pageContainer__sidebar : ""

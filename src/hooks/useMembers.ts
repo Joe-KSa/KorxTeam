@@ -1,40 +1,57 @@
-import { useCallback } from "react";
 import { MemberService } from "@/core/services/member/memberService";
 import { membersStore } from "@/store/store";
-import { useUser } from "./useUser";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 export const useMembers = () => {
-  const { members, setMembers, selectedMember, setSelectedMember } =
-    membersStore();
-  const { user } = useUser();
-  const roleOrder = [2, 3, 1];
-
-  const loadMembers = useCallback(async () => {
-    const membersData = await new MemberService().getMembers();
-
-    const sortedMembers = membersData.sort((a, b) => {
-
-      if(a.userId === user?.id) return -1;
-      if (b.userId === user?.id) return 1;
-
-      const roleA = a.role.id ?? 0;
-      const roleB = b.role.id ?? 0;
-
-      const roleComparison =
-        roleOrder.indexOf(roleA) - roleOrder.indexOf(roleB);
-      if (roleComparison !== 0) {
-        return roleComparison;
-      }
-      return a.id - b.id;
-    });
-
-    setMembers(sortedMembers);
-  }, [setMembers, user]);
-
-  return {
+  const {
     members,
     setMembers,
+    selectedMember,
+    setSelectedMember,
+    hiddenMembers,
+    setHiddenMembers,
+  } = membersStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const hasLoadedRef = useRef(false); // bandera para controlar la carga
+
+  // En useMembers.ts
+  const loadMembers = useCallback(
+    async (
+      sortBy = "rolePriority",
+      sort: "asc" | "desc" = "asc",
+      force = false
+    ) => {
+      if (!force && (hasLoadedRef.current || members.length > 0)) return;
+
+      try {
+        setIsLoading(true);
+        const membersData = await new MemberService().getMembers(sort, sortBy);
+
+        const visibleMembers = membersData.filter((member) => !member.hidden);
+        const hiddenMembersData = membersData.filter((member) => member.hidden);
+
+        setMembers(visibleMembers);
+        setHiddenMembers(hiddenMembersData);
+        hasLoadedRef.current = true;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [members.length, setMembers, setHiddenMembers]
+  );
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
+
+  return {
     loadMembers,
+    members,
+    hiddenMembers,
+    setMembers,
+    isLoading,
     selectedMember,
     setSelectedMember,
   };

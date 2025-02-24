@@ -1,7 +1,8 @@
 import Button, { ButtonHoverStyle, ButtonStyle } from "../common/Button";
 import type { getMemberProps } from "@/core/types";
 import { UserService } from "../../core/services/user/userService";
-import { useUser } from "@/hooks/useUser";
+
+import { useMembers } from "@/hooks/useMembers";
 import Dropdown from "../common/Dropdown";
 
 const MenuModeration = ({
@@ -9,22 +10,21 @@ const MenuModeration = ({
 }: {
   selectedMember: getMemberProps;
 }) => {
-  const { user } = useUser();
+  const { loadMembers } = useMembers();
 
-  const handleBlockUser = async () => {
-    const userService = new UserService();
-    await userService.blockUser(selectedMember.username);
-  };
-
-  const handleUnblockUser = async () => {
-    const userService = new UserService();
-    await userService.unblockUser(selectedMember.username);
-  };
+  // En MenuModeration.tsx
+const handleToggleBlock = async (action: string) => {
+  const userService = new UserService();
+  await userService.updateBlockUser(selectedMember.username, action);
+  
+  // Recargar miembros para actualizar el estado de bloqueo
+  await loadMembers("rolePriority", "asc", true);
+};
 
   return (
     <Dropdown transform="translate3d(0px, 35px, 0)">
       <li role="menuitem">
-        {user?.writeAccess === 0 ? (
+        {selectedMember?.role.name === "Bloqueado" ? (
           <Button
             styleType={ButtonStyle.TEXT_ONLY}
             label="Desbloquear"
@@ -32,7 +32,7 @@ const MenuModeration = ({
             color="var(--text-base)"
             justifyContent="start"
             hoverStyleType={ButtonHoverStyle.NORMAL}
-            onClick={handleUnblockUser}
+            onClick={() => handleToggleBlock("desbloquear")}
           />
         ) : (
           <Button
@@ -42,7 +42,7 @@ const MenuModeration = ({
             justifyContent="start"
             color="var(--text-base)"
             hoverStyleType={ButtonHoverStyle.NORMAL}
-            onClick={handleBlockUser}
+            onClick={() => handleToggleBlock("bloquear")}
           />
         )}
       </li>

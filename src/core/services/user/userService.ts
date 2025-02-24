@@ -14,15 +14,17 @@ export class UserService extends DataService {
         credentials: "include",
       });
 
+      // Procesar códigos de estado primero
       if (response.status === 200) {
-        return await response.json();
+        return await response.json(); // Usuario no baneado
       } else if (response.status === 403) {
-        console.warn("User is banned");
+        console.error("User is banned");
         return null;
       } else if (response.status === 401) {
-        // Silenciar el error y reintentar con el refresh token
+        // Lógica de renovación de token..
         const tokenRefreshed = await TokenManager.refreshToken();
-        if (!tokenRefreshed) return null; 
+
+        if (!tokenRefreshed) return null; // Evita bucles infinitos
 
         const retryResponse = await fetch(`${this.url}`, {
           method: "GET",
@@ -31,15 +33,31 @@ export class UserService extends DataService {
 
         return retryResponse.ok ? await retryResponse.json() : null;
       }
-      
-      return null;
-    } catch {
-      // Silenciar errores inesperados sin imprimir en consola
+      throw new Error("Error fetching user data");
+    } catch (error) {
+      console.error(error);
       return null;
     }
   }
 
-  async banUser(userId: number) {
+  async getUserPermissions(userId: string) {
+    try {
+      const response = await fetch(`${this.url}/${userId}/permissions`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async banUser(userId: string) {
     try {
       const response = await fetch(`${this.url}/${userId}/ban`, {
         method: "POST",
@@ -52,38 +70,18 @@ export class UserService extends DataService {
     }
   }
 
-  async unbanUser(userId: number) {
+  async updateBlockUser(username: string, action: string) {
     try {
-      const response = await fetch(`${this.url}/${userId}/unban`, {
-        method: "POST",
+      const response = await fetch(`${this.url}/${username}/toggle-block`, {
+        method: "PATCH",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
       });
-      return response.ok;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  }
 
-  async blockUser(username: string) {
-    try {
-      const response = await fetch(`${this.url}/${username}/block`, {
-        method: "POST",
-        credentials: "include",
-      });
-      return response.ok;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  }
-
-  async unblockUser(username: string) {
-    try {
-      const response = await fetch(`${this.url}/${username}/unblock`, {
-        method: "POST",
-        credentials: "include",
-      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       return response.ok;
     } catch (error) {
       console.error(error);

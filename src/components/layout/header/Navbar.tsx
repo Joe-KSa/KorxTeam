@@ -5,7 +5,13 @@ import Button, {
   ButtonStyle,
   ButtonHoverStyle,
 } from "@/components/common/Button";
-import { DiscordIcon, PlusIcon, LinesHorizontalIcon } from "@/assets/icons";
+import {
+  DiscordIcon,
+  PlusIcon,
+  LinesHorizontalIcon,
+  NotificationIcon,
+  ModerationIcon,
+} from "@/assets/icons";
 import image from "@/assets/KorxteamIcon.png";
 import { useUser } from "@/hooks/useUser";
 import useClickOutside from "@/hooks/useClickOutside";
@@ -13,21 +19,36 @@ import { environment } from "@/environments/environment.prod";
 import UserConfiguration from "@/components/widget/UserConfiguration";
 import OffCanvas from "@/components/common/OffCanvas";
 import DrowpdownAddElement from "@/components/widget/DrowpdownAddElement";
+import { useLocation } from "react-router-dom";
+import DrowpdownModeration from "@/components/widget/DropdownModeration";
 
 const Navbar = () => {
   const [isOpenOffCanvas, setIsOpenOffCanvas] = useState(false);
   const [isOpenUserConfig, setIsOpenUserConfig] = useState(false);
   const [isOpenAddElement, setIsOpenAddElement] = useState(false);
+  const [isOpenModeration, setIsOpenModeration] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const { user } = useUser();
 
   const selectBoxRefConfig = useRef<HTMLDivElement>(null);
   const selectBoxRefOffCanvas = useRef<HTMLDivElement>(null);
   const selectBoxRefAdd = useRef<HTMLDivElement>(null);
+  const selectBoxNotification = useRef<HTMLDivElement>(null);
+  const selectBoxRefModeration = useRef<HTMLDivElement>(null);
 
   useClickOutside(selectBoxRefConfig, () => setIsOpenUserConfig(false));
   useClickOutside(selectBoxRefOffCanvas, () => setIsOpenOffCanvas(false));
   useClickOutside(selectBoxRefAdd, () => setIsOpenAddElement(false));
+  useClickOutside(selectBoxRefModeration, () => setIsOpenModeration(false));
+
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsOpenUserConfig(false);
+    setIsOpenOffCanvas(false);
+    setIsOpenAddElement(false);
+    setIsOpenModeration(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,7 +67,10 @@ const Navbar = () => {
     <>
       {!searchExpanded && (
         <div className={styles.containerLogo}>
-          <div ref={selectBoxRefOffCanvas}>
+          <div
+            ref={selectBoxRefOffCanvas}
+            className={styles.containerLogo__offCanvas}
+          >
             <Button
               styleType={ButtonStyle.ICON}
               padding="8px"
@@ -54,7 +78,7 @@ const Navbar = () => {
             >
               <LinesHorizontalIcon className="medium-icon" />
             </Button>
-            <OffCanvas open={isOpenOffCanvas} />
+            <OffCanvas open={isOpenOffCanvas} setIsOpen={setIsOpenOffCanvas} />
           </div>
 
           <div className={styles.containerLogo__inner}>
@@ -101,6 +125,33 @@ const Navbar = () => {
                 </Button>
                 {isOpenAddElement && <DrowpdownAddElement />}
               </div>
+              <div ref={selectBoxNotification}>
+                <Button
+                  styleType={ButtonStyle.ICON}
+                  hoverStyleType={ButtonHoverStyle.SCALE}
+                  padding="4px"
+                  redirect
+                  href="/notification"
+                >
+                  <NotificationIcon className="medium-icon" />
+                </Button>
+              </div>
+              {user.role.name === "Moderator" ||
+                (user.role.name === "Administrador" && (
+                  <div ref={selectBoxRefModeration}>
+                    <Button
+                      styleType={ButtonStyle.ICON}
+                      hoverStyleType={ButtonHoverStyle.SCALE}
+                      padding="4px"
+                      redirect
+                      onClick={() => setIsOpenModeration(!isOpenModeration)}
+                    >
+                      <ModerationIcon className="large-icon" />
+                    </Button>
+                    {isOpenModeration && <DrowpdownModeration />}
+                  </div>
+                ))}
+
               <div ref={selectBoxRefConfig}>
                 <Button
                   styleType={ButtonStyle.ICON}

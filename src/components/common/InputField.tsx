@@ -24,7 +24,7 @@ interface InputFieldProps {
   error?: string;
   optional?: boolean;
   disableSeparation?: boolean;
-  maxLength: number;
+  maxLength?: number;
   disabled?: boolean;
 }
 

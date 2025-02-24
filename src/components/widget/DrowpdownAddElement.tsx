@@ -11,6 +11,8 @@ const DrowpdownAddElement = () => {
           label="Nuevo Proyecto"
           width="100%"
           justifyContent="start"
+          redirect
+          href="/new-project"
           iconMargin="0 5px 0 0"
           borderRadius="4px"
           hoverStyleType={ButtonHoverStyle.NORMAL}

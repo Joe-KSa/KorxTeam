@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-import useDominantColor from "@/hooks/useDominatColor";
+import useDominantColor from "@/hooks/useDominantColor";
 import { useProjectMembers } from "@/hooks/useProjectMember";
 import { useMembers } from "@/hooks/useMembers";
 import { useProjects } from "@/hooks/useProjects";
@@ -7,26 +7,52 @@ import styles from "./styles/TableMember.module.scss";
 import image from "@/assets/LoadingMembers.gif";
 import { getMemberProps } from "@/core/types";
 import { useLocation } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
+import { RemoveIcon } from "@/assets/icons";
 
-const TableMembers: React.FC<{ isProjectCardVisible: boolean }> = ({
-  isProjectCardVisible,
+type TableMembersProps = {
+  isOverviewSectionVisible?: boolean;
+  selectedMemberIds?: number[];
+  creatorId?: number;
+  onRemoveMember?: (memberId: number) => void;
+};
+
+const TableMembers: React.FC<TableMembersProps> = ({
+  isOverviewSectionVisible,
+  selectedMemberIds = [],
+  creatorId,
+  onRemoveMember,
 }) => {
-  const { members, loadMembers, setSelectedMember } = useMembers();
+  const { members, hiddenMembers, setSelectedMember } = useMembers();
   const { projectMembers, loadProjectMembers } = useProjectMembers();
-  const { selectedProject, projectBanner } = useProjects();
+
+  const { user } = useUser();
+  const {
+    selectedProject,
+    projectBanner,
+    projectDominantColor,
+    setProjectDominantColor,
+  } = useProjects();
+
   const location = useLocation();
-  const isModerationPage = location.pathname.startsWith("/moderation");
+  const isModerationPage = location.pathname.startsWith("/moderation/members");
+  const isManagingProject =
+    location.pathname.startsWith("/new-project") ||
+    location.pathname.startsWith(`/project/${selectedProject?.id}/edit`);
 
-
-  const dominantColor = useDominantColor(projectBanner?.images?.url);
+  const dominantColor = useDominantColor(projectBanner?.images.url);
 
   useEffect(() => {
     if (selectedProject?.id) {
       loadProjectMembers(selectedProject.id);
-    } else {
-      loadMembers();
     }
-  }, [selectedProject, loadProjectMembers, loadMembers]);
+  }, [selectedProject?.id]);
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setProjectDominantColor(dominantColor);
+    }
+  }, [location.pathname, dominantColor, setProjectDominantColor]);
 
   const handleUserClick = useCallback(
     (user: getMemberProps) => {
@@ -35,53 +61,71 @@ const TableMembers: React.FC<{ isProjectCardVisible: boolean }> = ({
     [setSelectedMember]
   );
 
-  const currentMembers = (selectedProject ? projectMembers : members).filter(
-    (member) => isModerationPage || member.hidden !== 1
-  );
+  let currentMembers = isModerationPage
+    ? hiddenMembers
+    : selectedProject
+    ? projectMembers
+    : members;
+
+  if (!currentMembers) return;
+
+  if (isManagingProject) {
+    currentMembers = members.filter(
+      (member) => selectedMemberIds.includes(member.id) && !member.hidden
+    );
+  }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.container__inner}>
+    <>
+      <div
+        className={styles.mask}
+        style={{
+          backgroundColor: isModerationPage
+            ? "transparent"
+            : projectDominantColor || "transparent",
+        }}
+      ></div>
+      <div className={styles.table}>
         <div
-          className={styles.container__inner__mask}
-          style={{ backgroundColor: isModerationPage ? "transparent" : dominantColor || "transparent" }}
-        ></div>
-        <div className={styles.table}>
-          {/* Header */}
+          className={`${styles.table__headerContainer} ${
+            isOverviewSectionVisible ? styles.desactive : styles.active
+          }`}
+        >
           <div
-            className={`${styles.table__headerContainer} ${
-              isProjectCardVisible ? styles.desactive : styles.active
+            className={`${styles.header} ${
+              isOverviewSectionVisible ? styles.header__border : ""
             }`}
           >
-            <div
-              className={`${styles.header} ${
-                isProjectCardVisible ? styles.header__border : ""
-              }`}
-            >
-              <div className={styles.header__item} style={{ textAlign: "end" }}>
-                #
-              </div>
-              <div className={styles.header__item}>Nombre</div>
-              <div className={styles.header__item}>Rol</div>
+            <div className={styles.header__item} style={{ textAlign: "end" }}>
+              #
             </div>
+            <div className={styles.header__item}>Nombre</div>
+            <div className={styles.header__item}>Rol</div>
           </div>
-          <div className={styles.body}>
-            {currentMembers.length === 0 ? (
-              <div className="no-items-message" style={{ marginTop: "4em" }}>
-                <div className="no-items-container">
-                  <img src={image} alt="MemberGif" />
-                  <span>Buscando miembros</span>
-                </div>
+        </div>
+        <div className={styles.body}>
+          {currentMembers.length === 0 ? (
+            <div className="no-items-message" style={{ marginTop: "4em" }}>
+              <div className="no-items-container">
+                <img src={image} alt="MemberGif" />
+                <span>Buscando miembros</span>
               </div>
-            ) : (
-              currentMembers.map((member, index) => (
-                <div role="row" aria-rowindex={index + 2} key={index}>
+            </div>
+          ) : (
+            currentMembers.map((member, index) => {
+              
+              const isCreator = String(member.userId) === String(creatorId)
+              const isCurrentUser = String(member.userId) === String(user?.id);
+
+
+              const displayRole = isCreator ? "Creador" : member.role.name;
+
+              return (
+                <div role="row" aria-rowindex={index + 2} key={member.id}>
                   <div
-                    key={member.id}
                     className={styles.body__row}
                     onClick={() => handleUserClick(member)}
                   >
-                    {/* Índice */}
                     <div
                       aria-colindex={1}
                       className={`${styles.body__row__item} ${styles.body__row__item__index}`}
@@ -89,18 +133,8 @@ const TableMembers: React.FC<{ isProjectCardVisible: boolean }> = ({
                       <div>
                         <span>{index + 1}</span>
                       </div>
-                      {/* <div
-                          className="member-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(member.id, member.publicId);
-                          }}
-                        >
-                          <DeleteIcon className="medium" />
-                        </div> */}
                     </div>
 
-                    {/* Nombre e imagen del usuario */}
                     <div
                       aria-colindex={2}
                       className={`${styles.body__row__item} ${styles.body__row__item__member}`}
@@ -110,27 +144,36 @@ const TableMembers: React.FC<{ isProjectCardVisible: boolean }> = ({
                         src={member?.images?.avatar?.url}
                         alt={member.name}
                       />
-
                       <span className={styles.body__row__item__member__name}>
                         {member.name}
                       </span>
                     </div>
 
-                    {/* Rol del usuario */}
                     <div
                       aria-colindex={3}
                       className={`${styles.body__row__item} ${styles.body__row__item__role}`}
                     >
-                      {member.role.name}
+                      {displayRole}
+                      {isManagingProject && !isCreator && !isCurrentUser && (
+                        <div
+                          className={styles.body__row__item__remove}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveMember && onRemoveMember(member.id);
+                          }}
+                        >
+                          <RemoveIcon />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              );
+            })
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -12,18 +12,10 @@ import { useMembers } from "@/hooks/useMembers";
 import { useImageStore } from "@/store/store";
 import HeaderProfile from "@/components/ui/HeaderProfile";
 import { MemberService } from "../../core/services/member/memberService";
-import { CloudinaryService } from "@/core/services/cloudinary/cloudinaryService";
 import InputColor from "@/components/common/InputColor";
 import InputAudio, { InputAudioRef } from "@/components/common/InputAudio";
 import FormStyles from "@/components/common/styles/InputField.module.scss";
-import { SupabaseService } from "@/core/services/supabase/supabaseService";
-
-const ERROR_MESSAGES = {
-  fieldsRequired: "Todos los campos son requeridos",
-  uploadImageFailed: "Error al subir la imagen. Intenta nuevamente.",
-  uploadAudioFailed: "Error al subir el audio. Intenta nuevamente.",
-  updateProfileFailed: "Error al actualizar el perfil. Intenta nuevamente.",
-};
+import { ERROR_MESSAGES, handleAudioUpload, handleImageUpload } from "@/utils/handleUpload";
 
 const ProfilePage = () => {
   const { user } = useUser();
@@ -119,54 +111,15 @@ const ProfilePage = () => {
     }));
   };
 
-  const handleImageUpload = async (
-    image: File | null,
-    existingPublicId?: string
-  ) => {
-    if (!image) return { url: "", publicId: existingPublicId || "" };
-    console.log(existingPublicId)
-    if (existingPublicId)
-      await new CloudinaryService().deleteImage(existingPublicId);
-    const uploadResponse = await new CloudinaryService().uploadImage(image);
-    if (!uploadResponse?.url || !uploadResponse?.publicId)
-      throw new Error(ERROR_MESSAGES.uploadImageFailed);
-    return { url: uploadResponse.url, publicId: uploadResponse.publicId };
-  };
-
-  const handleAudioUpload = async (
-    audioFile: File | null,
-    existingSoundPath?: string
-  ) => {
-    if (existingSoundPath) {
-      await new SupabaseService().deleteAudio(existingSoundPath);
-    }
-
-    if (!audioFile) {
-      return { soundUrl: "", soundPath: "" };
-    }
-
-    const uploadResponse = await new SupabaseService().uploadAudio(audioFile);
-
-    if (!uploadResponse?.soundUrl || !uploadResponse?.soundPath) {
-      throw new Error(ERROR_MESSAGES.uploadAudioFailed);
-    }
-
-    return {
-      soundUrl: uploadResponse.soundUrl,
-      soundPath: uploadResponse.soundPath,
-    };
-  };
 
   const handleAudioChange = (url: string | null) => {
     setFormState((prev) => ({
       ...prev,
-      sound: url
-        ? { ...prev.sound, url }
-        : { url: "", path: "", type: "" },
+      sound: url ? { ...prev.sound, url } : { url: "", path: "", type: "" },
     }));
   };
-  
 
+  // Datos en tiempo real
   useEffect(() => {
     if (member) {
       setSelectedMember({
@@ -176,15 +129,15 @@ const ProfilePage = () => {
           avatar: {
             url: images.imageUrl || member?.images.avatar.url,
             publicId: images.imageUrl
-             ? member?.images.avatar.publicId
+              ? member?.images.avatar.publicId
               : member?.images.avatar.publicId,
           },
           banner: {
             url: images.bannerUrl || member?.images.banner.url,
             publicId: images.bannerUrl
-             ? member?.images.banner.publicId
+              ? member?.images.banner.publicId
               : member?.images.banner.publicId,
-          }
+          },
         },
         tags,
       });
@@ -202,7 +155,7 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!member || !formState.name) {
+    if (!member || !formState.name.trim()) {
       alert(ERROR_MESSAGES.fieldsRequired);
       return;
     }
@@ -210,20 +163,24 @@ const ProfilePage = () => {
     setIsSubmitting(true);
 
     try {
-      const { url: avatarUrl, publicId: publicAvatarId } = await handleImageUpload(
-        images.imageFile,
-        member?.images.avatar.publicId
-      );
+      const { url: avatarUrl, publicId: publicAvatarId } =
+        await handleImageUpload(
+          images.imageFile,
+          member?.images.avatar.publicId
+        );
       const { url: bannerUrl, publicId: publicBannerId } =
-        await handleImageUpload(images.bannerFile, member?.images.banner.publicId);
+        await handleImageUpload(
+          images.bannerFile,
+          member?.images.banner.publicId
+        );
 
       const audioFile = inputSoundRef.current?.getFile() || null;
 
       const audioUpload = audioFile
         ? await handleAudioUpload(audioFile, member?.sound.path)
         : {
-            soundUrl: "",
-            soundPath: "",
+            soundUrl: member?.sound.url || "",
+            soundPath: member?.sound.path || "",
           };
 
       const memberData: Pick<
@@ -256,9 +213,10 @@ const ProfilePage = () => {
         sound: {
           url: audioUpload?.soundUrl || "",
           path: audioUpload?.soundPath || "",
-          type: "general"
+          type: "general",
         },
       };
+
 
       const response = await new MemberService().updateMember(
         member.id,
@@ -290,7 +248,7 @@ const ProfilePage = () => {
     }
   };
 
-  const isDisabled = user?.writeAccess === 0;
+  const isDisabled = user?.role.name === "Bloqueado";
 
   return (
     <div className={styles.container}>
@@ -330,7 +288,7 @@ const ProfilePage = () => {
             onChange={(value) => handleInputChange("github", value)}
           />
           <InputField
-            label="Habilidades"
+            label="Tecnologias"
             type="skills"
             htmlFor="skills"
             disabled={isDisabled}

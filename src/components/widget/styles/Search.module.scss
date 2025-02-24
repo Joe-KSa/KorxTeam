@@ -24,7 +24,6 @@
         display: flex;
         justify-content: center;
 
-
         .searchContent {
             width: 100%;
             display: flex;
@@ -64,7 +63,6 @@
         .desktopSearchIcon {
             @include iconPosition;
             left: 12px;
-            
         }
 
         .searchInputContainer {

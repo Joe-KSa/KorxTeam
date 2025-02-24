@@ -102,7 +102,7 @@ export const Search: React.FC<SearchProps> = ({
                       <Button
                         styleType={ButtonStyle.ICON}
                         padding="0"
-                        href="/project"
+                        href="/projects"
                         redirect
                       >
                         <ProjectIcon className="large-icon" />

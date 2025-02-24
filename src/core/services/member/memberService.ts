@@ -7,23 +7,26 @@ export class MemberService extends DataService {
     super(environment.backEnd.baseUrl + "/api/member");
   }
 
-  async getMembers(): Promise<getMemberProps[]> {
+  async getMembers(sort: "asc" | "desc" = "asc", sortBy: string = "id"): Promise<getMemberProps[]> {
     try {
-      const response = await fetch(`${this.url}`, {
+      const response = await fetch(`${this.url}?sort=${sort}&sortBy=${sortBy}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       });
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+  
       return await response.json();
     } catch (error) {
       this.handleError(error);
       return [];
     }
   }
+  
 
   async getMember(id: number): Promise<getMemberProps | undefined> {
     try {

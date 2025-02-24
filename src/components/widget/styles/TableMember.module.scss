@@ -1,23 +1,10 @@
-.container {
-    position: relative;
-
-    &__inner {
-        display: flex;
-        flex-direction: column;
-        gap: 1em;
-        border-radius: 10px;
-        width: 100%;
-        box-sizing: border-box;
-
-        &__mask {
-            height: 232px;
-            background-image: linear-gradient(rgb(0, 0, 0, 0.6) 0, #121212 100%),
-                url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvjPwZvmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=");
-            position: absolute;
-            width: 100%;
-            z-index: 0;
-        }
-    }
+.mask {
+    height: 232px;
+    background-image: linear-gradient(rgb(0, 0, 0, 0.6) 0, #121212 100%),
+        url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvjPwZvmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=");
+    position: absolute;
+    width: 100%;
+    z-index: 0;
 }
 
 .table {
@@ -45,8 +32,6 @@
         z-index: 2;
         padding-left: var(--content-spacing);
     }
-
-    
 }
 
 .header {
@@ -148,12 +133,15 @@
 
                 &__name {
                     color: var(--text-subdued);
-                    font-weight: 400;
+                    font-weight: 700;
                 }
             }
 
             &__role {
-                font-weight: 500;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: 700;
                 color: #b3b3b3;
             }
         }

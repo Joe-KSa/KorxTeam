@@ -1,29 +1,27 @@
-import { useCallback } from "react";
-import { ProjectMemberService } from "@/core/services/projectMember/projectMemberService";
+import { useCallback, useState } from "react";
+import { ProjectService } from "@/core/services/project/projectService";
 import { projectMembersStore } from "@/store/store";
+
+const projectService = new ProjectService();
 
 export const useProjectMembers = () => {
   const { projectMembers, setProjectMembers } = projectMembersStore();
-  const roleOrder = [2, 3, 1];
+  const [isLoading, setIsLoading] = useState(false);
 
-  const loadProjectMembers = useCallback(async (id: number) => {
-    const projectMembersData =
-      await new ProjectMemberService().getProjectMembers(id);
-
-    const sortedProjectMembers = projectMembersData.sort((a, b) => {
-      const roleA = a.role.id ?? 0;
-      const roleB = b.role.id ?? 0;
-
-      const roleComparison =
-        roleOrder.indexOf(roleA) - roleOrder.indexOf(roleB);
-      if (roleComparison !== 0) {
-        return roleComparison;
+  const loadProjectMembers = useCallback(
+    async (id: number) => {
+      try {
+        setIsLoading(true);
+        const projectMembersData = await projectService.getProjectMembers(id);
+        setProjectMembers(projectMembersData);
+      } catch (error) {
+        console.error("Error loading project members:", error);
+      } finally {
+        setIsLoading(false);
       }
-      return a.id - b.id;
-    });
+    },
+    [setProjectMembers]
+  );
 
-    setProjectMembers(sortedProjectMembers);
-  }, []);
-
-  return { projectMembers, setProjectMembers, loadProjectMembers };
+  return { projectMembers, setProjectMembers, loadProjectMembers, isLoading };
 };

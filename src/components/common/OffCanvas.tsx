@@ -4,21 +4,32 @@ import { HomeIcon, ProjectIcon } from "@/assets/icons";
 import stylesNavbar from "../layout/header/styles/Navbar.module.scss";
 import { LinesHorizontalIcon } from "@/assets/icons";
 import image from "@/assets/KorxteamIcon.png";
+import { useMembers } from "@/hooks/useMembers";
 
 interface OffCanvasProps {
   open: boolean;
+  setIsOpen: (value: boolean) => void;
 }
-const OffCanvas: React.FC<OffCanvasProps> = ({ open }) => {
+const OffCanvas: React.FC<OffCanvasProps> = ({ open, setIsOpen }) => {
+  const { setSelectedMember } = useMembers();
+
   return (
     <>
       <div className={`${styles.container} ${open ? styles.visible : ""}`}>
         <div className={styles.container__logo}>
-          <Button styleType={ButtonStyle.ICON} padding="8px" onClick={() => {}}>
+          <Button
+            styleType={ButtonStyle.ICON}
+            padding="8px"
+            onClick={() => setIsOpen(false)}
+          >
             <LinesHorizontalIcon className="medium-icon" />
           </Button>
 
           <div className={stylesNavbar.containerLogo__inner}>
-            <div className={stylesNavbar.containerLogo__inner__icon} title="home">
+            <div
+              className={stylesNavbar.containerLogo__inner__icon}
+              title="home"
+            >
               <img src={image} alt="" />
             </div>
           </div>
@@ -34,6 +45,7 @@ const OffCanvas: React.FC<OffCanvasProps> = ({ open }) => {
               justifyContent="start"
               borderRadius="4px"
               href="/"
+              onClick={() => setSelectedMember(null)}
               redirect
               iconMargin="0 5px 0 0"
             >
@@ -47,7 +59,8 @@ const OffCanvas: React.FC<OffCanvasProps> = ({ open }) => {
               justifyContent="start"
               borderRadius="4px"
               redirect
-              href="/project"
+              onClick={() => setSelectedMember(null)}
+              href="/projects"
               iconMargin="0 5px 0 0"
             >
               <ProjectIcon className="medium-icon" />

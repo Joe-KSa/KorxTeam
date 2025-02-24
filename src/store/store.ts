@@ -12,6 +12,8 @@ interface projectStoreProps {
   selectedProject: getProjectProps | null;
   setProjects: (projects: getProjectProps[]) => void;
   setSelectedProject: (project: getProjectProps | null) => void;
+  projectDominantColor: string | null;
+  setProjectDominantColor: (color: string | null) => void;
 }
 
 interface membersStoreProps {
@@ -19,6 +21,8 @@ interface membersStoreProps {
   setMembers: (members: getMemberProps[]) => void;
   selectedMember: getMemberProps | null;
   setSelectedMember: (member: getMemberProps | null) => void;
+  hiddenMembers: getMemberProps[] | null
+  setHiddenMembers: (members: getMemberProps[]) => void;
 }
 
 interface tagsStoreProps {
@@ -57,6 +61,8 @@ export const projectStore = create<projectStoreProps>((set) => ({
   setProjects: (projects) => set({ projects }),
   selectedProject: null,
   setSelectedProject: (project) => set({ selectedProject: project }),
+  projectDominantColor: null,
+  setProjectDominantColor: (color) => set({ projectDominantColor: color }),
 }));
 
 export const membersStore = create<membersStoreProps>((set) => ({
@@ -64,6 +70,8 @@ export const membersStore = create<membersStoreProps>((set) => ({
   setMembers: (members) => set({ members }),
   selectedMember: null,
   setSelectedMember: (member) => set({ selectedMember: member }),
+  hiddenMembers: null,
+  setHiddenMembers: (members) => set({ hiddenMembers: members }),
 }));
 
 export const tagsStore = create<tagsStoreProps>((set) => ({

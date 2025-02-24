@@ -3,6 +3,7 @@ import type {
   getProjectProps,
   postProjectProps,
   apiResponse,
+  getMemberProps,
 } from "@/core/types";
 import { DataService } from "../dataService";
 
@@ -24,6 +25,23 @@ export class ProjectService extends DataService {
     } catch (error) {
       this.handleError(error);
       return [];
+    }
+  }
+
+  async getProjectById(id: number) {
+    try {
+      const response = await fetch(`${this.url}/${id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error: any) {
+      this.handleError(error);
+      return null;
     }
   }
 
@@ -92,6 +110,47 @@ export class ProjectService extends DataService {
       return { success: true };
     } catch (error: any) {
       return { success: false, message: error.message };
+    }
+  }
+
+  // Members
+  async getProjectMembers(projectId: number): Promise<getMemberProps[]> {
+    try {
+      const response = await fetch(`${this.url}/${projectId}/members`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error: any) {
+      this.handleError(error);
+      return [];
+    }
+  }
+
+  async updateProjectVisibility(projectId: number, hidden: boolean) {
+    try {
+      const response = await fetch(`${this.url}/${projectId}/visibility`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ hidden }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json(); 
+      return data.project;
+  
+    } catch (err) {
+      console.error("Error updating visibility:", err);
+      throw err;
     }
   }
 }

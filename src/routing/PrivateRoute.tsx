@@ -2,10 +2,11 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 
 const PrivateRoute = () => {
+  const { user, isLoading: isUserLoading } = useUser();
 
-  const { user } = useUser();
+  if (isUserLoading) return null;
 
-  return user ? <Outlet /> : <Navigate to="/"/>;
+  return user ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

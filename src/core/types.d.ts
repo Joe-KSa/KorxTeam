@@ -7,7 +7,6 @@ export interface userProps {
   banner: string;
   bannerColor: string;
   createdAt: string;
-  writeAccess: 1 | 0;
   updatedAt: string;
   role: roleProps;
 }
@@ -38,13 +37,14 @@ export interface memberProps {
   primaryColor: string;
   secondaryColor: string;
   sound: soundProps
-  hidden:  0 | 1 ;
   images: memberImageProps
   createdAt: string;
+  projectsCount: number;
 }
 
 export interface getMemberProps extends memberProps {
   id: number;
+  hidden:  boolean;
   role: roleProps;
   tags: tagProps[];
 }
@@ -75,22 +75,21 @@ export interface projectProps {
   repository: string;
   url: string;
   images: imageProps;
+  members: getMemberProps[];
+  tags: tagProps[];
+  
 }
 
 export interface getProjectProps extends projectProps {
   id: number;
-  members: getMemberProps[];
-  tags: tagProps[];
-  creator: Pick<memberProps, "id", "name", "username", "image">
+  hidden: boolean
+  creator: Pick<memberProps, "id", "name", "username">
 }
 
 export interface postProjectProps extends projectProps {
+  creator: Pick<userProps, "id" | "username">
   tags: (number | null)[];
-}
-
-export interface postProjectMemberData {
-  projectId: number;
-  members: { memberId: number; roleId: number | null }[];
+  members: (number | null)[];
 }
 
 export interface fileFromCloudProps {
@@ -114,4 +113,18 @@ export interface moderatorProps {
   id: string;
   username: string;
   role: roleProps;
+}
+
+// Notifiactions
+
+export interface NotificationProps {
+  id: number;
+  createdAt: string;
+  message: string;
+  project: {
+    title: string;
+    image: string
+  }
+  sender: Pick<userProps, "name" | "image">
+  status: string
 }

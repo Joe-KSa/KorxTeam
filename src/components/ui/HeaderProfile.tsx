@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getMemberProps } from "@/core/types";
 import styles from "@/components/widget/styles/MemberProfile.module.scss";
 import { MemberService } from "@/core/services/member/memberService";
-import useDominantColor from "@/hooks/useDominatColor";
+import useDominantColor from "@/hooks/useDominantColor";
 import { useUser } from "@/hooks/useUser";
 import { useMembers } from "@/hooks/useMembers";
 import { useImageStore } from "@/store/store";

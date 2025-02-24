@@ -40,39 +40,40 @@ interface ButtonProps {
   justifyContent?: string;
   border?: boolean;
   hideLabelOnSmallScreen?: boolean;
+  height?: string;
   type?: "button" | "reset" | "submit";
 }
 
 const Button: React.FC<ButtonProps> = ({
-  label,
-  backgroundColor,
+  label = "",
+  backgroundColor = "",
   styleType,
   children,
   onClick,
-  fontSize,
+  fontSize = "",
   disabled = false,
-  borderRadius,
-  padding,
-  color,
+  borderRadius = "",
+  padding = "",
+  color = "",
   hoverStyleType,
   redirect = false,
-  margin,
-  iconMargin,
+  margin = "",
+  iconMargin = "",
   href = "#",
   flexDirection,
-  width,
+  width = "",
   justifyContent,
   border = false,
+  height = "",
   type = "button",
-  hideLabelOnSmallScreen = false
+  hideLabelOnSmallScreen = false,
 }) => {
-
   const buttonClasses = [
-    styles.buttonCommon,
-    disabled && styles.buttonDisabled,
-    border && styles.buttonBorder,
-    hoverStyleType && styles[hoverStyleType],
-    hideLabelOnSmallScreen && styles.hideLabelOnSmallScreen,
+    styles.buttonCommon || "",
+    (disabled && styles.buttonDisabled) || "",
+    (border && styles.buttonBorder) || "",
+    (hoverStyleType && styles[hoverStyleType]) || "",
+    (hideLabelOnSmallScreen && styles.hideLabelOnSmallScreen) || "",
     styles[styleType],
   ]
     .filter(Boolean)
@@ -90,15 +91,16 @@ const Button: React.FC<ButtonProps> = ({
       margin,
       borderRadius,
       width,
+      height,
     },
     "aria-disabled": disabled,
     "aria-label": label || "Botón de acción",
     onClick: disabled ? undefined : onClick,
-    role: redirect ? "button" : undefined,
+    role: redirect ? "button" : "",
   };
 
   const renderContent = () => (
-    <div className={contentClasses} style={{ flexDirection, justifyContent}} >
+    <div className={contentClasses} style={{ flexDirection, justifyContent }}>
       {children && (
         <span className={styles.buttonIcon} style={{ margin: iconMargin }}>
           {children}

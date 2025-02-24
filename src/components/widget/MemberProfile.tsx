@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import SkillTags from "./SkillTags";
 import Button, { ButtonStyle } from "../common/Button";
 import { GithubIcon, DeleteIcon, MoreIcon } from "@/assets/icons";
@@ -11,6 +11,7 @@ import { useUser } from "@/hooks/useUser";
 import useClickOutside from "@/hooks/useClickOutside";
 import MenuModeration from "./MenuModeration";
 import { useLocation } from "react-router-dom";
+import { useRoleStore } from "@/store/useRoleStore";
 
 interface memberProfileProps {
   width: number;
@@ -20,9 +21,11 @@ const MemberProfile: React.FC<memberProfileProps> = ({ width }) => {
   const { setSelectedMember, selectedMember } = useMembers();
   const { user } = useUser();
   const location = useLocation();
+  const { fetchUserRoles, hasPermission, permissions } = useRoleStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const selectBoxRef = useRef<HTMLDivElement>(null);
+
   useClickOutside(selectBoxRef, () => setIsOpen(false));
 
   // Ocultar en móviles cuando la ruta es /settings
@@ -34,7 +37,7 @@ const MemberProfile: React.FC<memberProfileProps> = ({ width }) => {
   const github = selectedMember?.github ?? "#";
   const primaryColor = selectedMember?.primaryColor;
   const secondaryColor = selectedMember?.secondaryColor;
-  const soundUrl = selectedMember?.sound.url ;
+  const soundUrl = selectedMember?.sound.url;
 
   const tagNames = (tags ?? []).map((tag) => tag.name);
   const formattedDate = formatDate(createdAt);
@@ -42,7 +45,15 @@ const MemberProfile: React.FC<memberProfileProps> = ({ width }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Evitar reproducción si estamos en /profile
+    if (user) fetchUserRoles(user?.id);
+  }, [user?.id, fetchUserRoles]);
+
+  const canModerateUsers = useMemo(() => {
+    return hasPermission("moderate:users");
+  }, [permissions]); // Solo se recalcula cuando "permissions" cambian
+
+  useEffect(() => {
+    // Evitar reproducción si estamos en una ruta diferente a dashboard
     if (location.pathname !== "/") return;
 
     // Detener el audio anterior si existe
@@ -87,7 +98,7 @@ const MemberProfile: React.FC<memberProfileProps> = ({ width }) => {
           >
             <DeleteIcon className={"large-icon"} />
           </div>
-          {user?.role.name === "Moderador" && (
+          {canModerateUsers && (
             <div ref={selectBoxRef} onClick={() => setIsOpen(!isOpen)}>
               <div className={styles.container__actions__icon}>
                 <MoreIcon className={"large-icon"} />
@@ -143,7 +154,12 @@ const MemberProfile: React.FC<memberProfileProps> = ({ width }) => {
                 iconMargin="0 5px 0 0"
                 borderRadius="4px"
                 padding="10px 20px"
-                border={!!(selectedMember?.primaryColor || selectedMember?.secondaryColor)}
+                border={
+                  !!(
+                    selectedMember?.primaryColor ||
+                    selectedMember?.secondaryColor
+                  )
+                }
               >
                 <GithubIcon className={"small-icon"} />
               </Button>

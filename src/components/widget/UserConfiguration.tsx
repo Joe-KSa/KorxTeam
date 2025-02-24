@@ -48,6 +48,17 @@ const UserConfiguration = () => {
       </li>
       <li>
         <Button
+          label="Mis proyectos"
+          styleType={ButtonStyle.TEXT_ONLY}
+          hoverStyleType={ButtonHoverStyle.NORMAL}
+          width="100%"
+          justifyContent="start"
+          redirect
+          href={`/projects/${user?.username}`}
+        />
+      </li>
+      <li>
+        <Button
           label="Cerrar Sesión"
           styleType={ButtonStyle.TEXT_ONLY}
           hoverStyleType={ButtonHoverStyle.NORMAL}

@@ -12,6 +12,8 @@ export class SupabaseService extends DataService {
       const formData = new FormData();
       formData.append("sound", sound);
 
+      console.log(formData.get("sound"));
+
       const response = await fetch(`${this.url}`, {
         method: "POST",
         credentials: "include",
