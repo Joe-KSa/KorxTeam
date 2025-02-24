@@ -12,10 +12,10 @@ export const environment = {
 
 // Pruductions
 // Local: 
-// Backend  http://localhost:4000
+// Backend  "http://localhost:4000"
 // baseUrl: "https://backend-korx.vercel.app"
 
 // FrontEnd
-// Local: http://localhost:3000
+// Local: "http://localhost:3000"
 // baseUrl: "https://korxteam.netlify.app"
 

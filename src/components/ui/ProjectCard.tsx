@@ -10,6 +10,7 @@ import { GithubIcon, ChainIcon } from "@/assets/icons";
 import SkillTags from "../widget/SkillTags";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { getTextColor } from "@/utils/getTextColor";
 
 const ProjectCard = () => {
   const { id } = useParams();
@@ -28,6 +29,8 @@ const ProjectCard = () => {
     }
   }, [dominantColor]);
 
+  const textColor = getTextColor(id ? dominantColor : projectDominantColor || "");
+  
   return (
     <div className={styles.cardWrapper} key={projectBanner.id}>
       <div
@@ -43,16 +46,17 @@ const ProjectCard = () => {
             className={styles.card__imageContainer__img}
           />
         </div>
-        <div className={styles.infoContainer}>
+        {/* Se aplica el color de texto calculado al contenedor de información */}
+        <div className={styles.infoContainer} >
           <div>
             <span
               onClick={() => setSelectedProject(projectBanner)}
               className={styles.infoContainer__titleContainer}
             >
-              <h1>{projectBanner.title}</h1>
+              <h1 style={{ color: textColor }}>{projectBanner.title}</h1>
             </span>
             <span className={styles.infoContainer__descriptionContainer}>
-              <div className={styles.infoContainer__descriptionContainer__text}>
+              <div className={styles.infoContainer__descriptionContainer__text} style={{ color: textColor }}>
                 {projectBanner.description.slice(0, 150) + "..."}
               </div>
             </span>

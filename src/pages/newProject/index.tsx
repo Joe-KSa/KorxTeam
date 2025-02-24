@@ -207,9 +207,9 @@ const NewProjectPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     if (!user || !currentUserMember.id) return;
-  
+
     if (
       !formState.title.trim() ||
       !formState.description.trim() ||
@@ -218,16 +218,16 @@ const NewProjectPage = () => {
       alert(ERROR_MESSAGES.fieldsRequired);
       return;
     }
-  
+
     if (!formState.images.url) {
       alert("La imagen es requerida");
       return;
     }
-  
+
     // Variable para almacenar la información de la imagen subida
     let uploadedImage: { imageUrl: string; publicId: string } | null = null;
     setIsSubmitting(true);
-  
+
     try {
       // Subir la imagen y guardar su data
       const { url: imageUrl, publicId } = await handleImageUpload(
@@ -235,14 +235,14 @@ const NewProjectPage = () => {
         formState.images.publicId
       );
       uploadedImage = { imageUrl, publicId };
-  
+
       const finalMembers = [
         ...new Set([
           ...selectedMembers,
           selectedProject?.creator.id || currentUserMember.id,
         ]),
       ];
-  
+
       const projectData = {
         title: formState.title,
         description: formState.description,
@@ -259,9 +259,9 @@ const NewProjectPage = () => {
         tags: tags.map((t) => t.id),
         members: finalMembers,
       };
-  
+
       let response;
-  
+
       if (isEditing && selectedProject?.id) {
         response = await new ProjectService().updateProject(
           selectedProject.id,
@@ -270,7 +270,7 @@ const NewProjectPage = () => {
       } else {
         response = await new ProjectService().createProject(projectData);
       }
-  
+
       if (response.success) {
         alert(
           isEditing
@@ -290,7 +290,10 @@ const NewProjectPage = () => {
         try {
           await handleDeleteImage(uploadedImage.publicId);
         } catch (deleteError) {
-          console.error("Error eliminando la imagen de Cloudinary:", deleteError);
+          console.error(
+            "Error eliminando la imagen de Cloudinary:",
+            deleteError
+          );
         }
       }
       alert(ERROR_MESSAGES.uploadProjectFailed);
@@ -298,7 +301,7 @@ const NewProjectPage = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
       if (event.target.type !== "textarea") {
@@ -306,6 +309,7 @@ const NewProjectPage = () => {
       }
     }
   };
+
 
   return (
     <WorkSpace>
@@ -475,13 +479,15 @@ const NewProjectPage = () => {
               isEditing ? selectedProject?.creator.id : currentUserMember.id
             }
             onRemoveMember={(memberId) => {
-              const currentCreatorId = isEditing 
-                ? selectedProject?.creator.id 
+              const currentCreatorId = isEditing
+                ? selectedProject?.creator.id
                 : currentUserMember.id;
-              
+
               // Solo permite eliminar si no es el creador
               if (memberId !== currentCreatorId) {
-                setSelectedMembers(prev => prev.filter(id => id !== memberId));
+                setSelectedMembers((prev) =>
+                  prev.filter((id) => id !== memberId)
+                );
               }
             }}
           />

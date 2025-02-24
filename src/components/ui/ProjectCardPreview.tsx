@@ -8,6 +8,7 @@ import Button, {
   ButtonDirection,
   ButtonHoverStyle,
 } from "../common/Button";
+import { getTextColor } from "@/utils/getTextColor";
 
 interface ProjectCardPreviewProps {
   project: projectProps;
@@ -38,6 +39,8 @@ const ProjectCardPreview: React.FC<ProjectCardPreviewProps> = ({
 
   const tags = project?.tags ?? [];
   const tagNames = (tags ?? []).map((tag) => tag.name);
+
+  const textColor = getTextColor(dominantColor)
 
   return (
     <div className={styles.cardWrapper}>
@@ -71,10 +74,10 @@ const ProjectCardPreview: React.FC<ProjectCardPreviewProps> = ({
         <div className={styles.infoContainer}>
           <div>
             <span className={styles.infoContainer__titleContainer}>
-              <h1>{project.title}</h1>
+              <h1 style={{ color: textColor }}>{project.title}</h1>
             </span>
             <span className={styles.infoContainer__descriptionContainer}>
-              <div className={styles.infoContainer__descriptionContainer__text}>
+              <div className={styles.infoContainer__descriptionContainer__text} style={{ color: textColor }}>
                 {project.description.slice(0, 150) + "..."}
               </div>
             </span>

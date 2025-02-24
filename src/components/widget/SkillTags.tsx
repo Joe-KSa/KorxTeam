@@ -72,6 +72,11 @@ const SkillTags: React.FC<SkillTagsProps> = ({
     turso: <icon.TursoIcon className={iconClassName} />,
     laravel: <icon.LaravelIcon className={iconClassName} />,
     aseprite: <icon.AsepriteIcon className={iconClassName} />,
+    aws: <icon.AWSIcon className={iconClassName} />,
+    nestjs: <icon.NestjsIcon className={iconClassName} />,
+    azure: <icon.AzureIcon className={iconClassName} />,
+    django: <icon.DjangoIcon className={iconClassName} />,
+    flask: <icon.FlaskIcon className={iconClassName} />
   };
 
   const getIcon = (tag: string) => tagIcons[tag.toLowerCase()] || null;
